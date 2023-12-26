@@ -1000,6 +1000,7 @@ class str_mani {
     }
     getStrNumInStr(args){
         let str=String(args.STR),str2=String(args.STR2);
+        if(str.indexof(str)==-1) return 0;
         let str_=str,strindexs=[str_.indexOf(str2)];
         let index_=strindexs[strindexs.length-1]+1;
         while(str_.indexOf(str2,index_)!=-1){
