@@ -5,9 +5,33 @@ let structs=Object.create(null);
 let useStructs=Object.create(null);
 let useStructLists=Object.create(null);
 
-class struct {
+function structListsortFunc(rule_member,rule_type,rule_order){
+  return(a,b)=>{
+    for(let i=0;i<rule_member.length;i++){
+      let key=rule_member[i],value=rule_order[i],type_=rule_type[i];
+      //console.log(key,value,type_,i);
+      if(value=='none') continue;
+      let cmp_;
+      if(type_=='str'){
+        let aval=a[key],bval=b[key];
+        cmp_=(value=='asc' ?
+          aval<bval?-1 : aval>bval?1:0
+          : aval>bval?-1 : aval<bval?1:0
+        );
+      }else{
+        let aval=isNaN(Number(a[key]))?0:Number(a[key]),
+            bval=isNaN(Number(b[key]))?0:Number(b[key]);
+        cmp_=(value=='asc' ? aval-bval : bval-aval);
+      }
+      if(cmp_!=0) return cmp_;
+    }
+    return 0;
+  };
+};
+
+class easilyStruct {
   constructor(runtime) {
-    this.runtime = runtime,
+    this.runtime = runtime;
     this._formatMessage = runtime.getFormatMessage({
       'en':{
         //qxsckeasystruct.
@@ -488,7 +512,9 @@ class struct {
   }
 
   clearAll(){
-    structs=Object.create(null),useStructs=Object.create(null),useStructLists=Object.create(null);
+    structs=Object.create(null);
+    useStructs=Object.create(null);
+    useStructLists=Object.create(null);
   }
   clearData(args){
     let type_=String(args.TYPE);
@@ -670,32 +696,9 @@ class struct {
           else rule_member.push(rule_arr[i*3]),rule_type.push(rule_arr[i*3+1]),rule_order.push(rule_arr[i*3+2]);
         }
         let arr=useStructLists[name]['data'];
-        function structListsort(rule_member,rule_type,rule_order){
-          return(a,b)=>{
-            for(let i=0;i<rule_member.length;i++){
-              let key=rule_member[i],value=rule_order[i],type_=rule_type[i];
-              console.log(key,value,type_,i);
-              if(value=='none') continue;
-              let cmp_;
-              if(type_=='str'){
-                let aval=a[key],bval=b[key];
-                cmp_=(value=='asc' ?
-                  aval<bval?-1 : aval>bval?1:0
-                  : aval>bval?-1 : aval<bval?1:0
-                );
-              }else{
-                let aval=isNaN(Number(a[key]))?0:Number(a[key]),
-                    bval=isNaN(Number(b[key]))?0:Number(b[key]);
-                cmp_=(value=='asc' ? aval-bval : bval-aval);
-              }
-              if(cmp_!=0) return cmp_;
-            }
-            return 0;
-          };
-        };
-        console.log(rule_member,rule_type,rule_order);
-        let result=arr.sort(structListsort(rule_member,rule_type,rule_order));
-        console.log(result);
+        //console.log(rule_member,rule_type,rule_order);
+        let result=arr.sort(structListsortFunc(rule_member,rule_type,rule_order));
+        //console.log(result);
         useStructLists[name]['data']=result;
       }
     }
@@ -703,7 +706,7 @@ class struct {
 }
 
 window.tempExt = {
-  Extension: struct,
+  Extension: easilyStruct,
   info: {
     name: 'qxsckeasystruct.name',
     description: 'qxsckeasystruct.description',
